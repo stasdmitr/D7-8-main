@@ -1,4 +1,4 @@
-from django.shortcuts import render
+import os
 from datetime import datetime
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import News, Articles, Author
@@ -8,7 +8,13 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect
-
+from django.views.generic import CreateView
+from django.core.mail import send_mail
+from .models import Appointment
+from django.shortcuts import render, reverse, redirect
+from django.views import View
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
 
 class NewsList(ListView):
     # Указываем модель, объекты которой мы будем выводить
@@ -211,3 +217,26 @@ class ArticlesDelete(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def get_object(self, **kwargs):
         id = self.kwargs.get('pk')
         return Articles.objects.get(pk=id)
+
+
+class AppointmentView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'make_appointment.html', {})
+
+    def post(self, request, *args, **kwargs):
+        appointment = Appointment(
+            date=datetime.strptime(request.POST['date'], '%Y-%m-%d'),
+            client_name=request.POST['client_name'],
+            message=request.POST['message'], )
+        appointment.save()
+        html_content = render_to_string(
+            'appointment_created.html',
+            {'appointment': appointment, })
+        msg = EmailMultiAlternatives(
+            subject=f'{appointment.client_name} {appointment.date.strftime("%Y-%m-%d")}',
+            body=appointment.message,  # это то же, что и message
+            from_email='dmitrive2010@yandex.ru',
+            to=['dnitrive2010@gmail.com'], )
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        return redirect('make_appointment')

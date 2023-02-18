@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
 from django.views.decorators.cache import cache_page
+
 
 urlpatterns = [
     path('news/', NewsList.as_view(), name='news'),
@@ -14,4 +15,5 @@ urlpatterns = [
     path('articles/create/', ArticlesCreate.as_view(), name='articles_create'),
     path('articles/<int:pk>/update/', ArticlesUpdate.as_view(), name='articles_update'),
     path('articles/<int:pk>/delete/', ArticlesDelete.as_view(), name='articles_delete'),
+    path('make_appointment/', AppointmentView.as_view(), name='make_appointment'),
 ]

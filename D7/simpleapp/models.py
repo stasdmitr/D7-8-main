@@ -8,23 +8,21 @@ class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
-
-
 class News(models.Model):
     date = models.DateTimeField(default=datetime.now)
-    name = models.CharField(max_length=50,unique=True)
-    description = models.TextField(default = "News post")
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(default="News post")
     category = models.ForeignKey(
         to='Category',
         on_delete=models.CASCADE,
         related_name='news',  # все продукты в категории будут доступны через поле products
     )
+
     def get_absolute_url(self):
         return reverse('news_detail', args=[str(self.id)])
 
     def __str__(self):
         return f'{self.name.title()}: {self.description[:20]}'
-
 
 
 class Articles(models.Model):
@@ -52,3 +50,10 @@ class Category(models.Model):
         return self.category_name.title()
 
 
+class Appointment(models.Model):
+    date = models.DateField(default=datetime.utcnow)
+    client_name = models.CharField(max_length=200)
+    message = models.TextField()
+
+    def __str__(self):
+        return f'{self.client_name}: {self.message}'
